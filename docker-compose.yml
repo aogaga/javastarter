@@ -1,0 +1,35 @@
+services:
+  db:
+    image: mariadb:latest
+    environment:
+      MYSQL_DATABASE: backendDb
+      MYSQL_ROOT_PASSWORD: backendDb_password
+      MYSQL_USER: backendDb_user
+      MYSQL_PASSWORD: backendDb_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  backend:
+    build: ./jump
+    container_name: jump-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/backendDb
+      SPRING_DATASOURCE_USERNAME: backendDb_user
+      SPRING_DATASOURCE_PASSWORD: backendDb_password
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./webApp
+    container_name: jump-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
